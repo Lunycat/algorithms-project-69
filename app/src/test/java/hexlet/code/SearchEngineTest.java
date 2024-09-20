@@ -16,12 +16,12 @@ public class SearchEngineTest {
             Map.of("id", "doc1", "text", doc1),
             Map.of("id", "doc2", "text", doc2),
             Map.of("id", "doc3", "text", doc3)
-    )) ;
+    ));
 
     @Test
     public void testSearch() {
         List<String> expected = SearchEngine.search(docs, "shoot");
-        List<String> actual = List.of("doc1", "doc2");
+        List<String> actual = List.of("doc2", "doc1");
 
         assertEquals(expected, actual);
     }

@@ -1,34 +1,47 @@
 package hexlet.code;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class SearchEngine {
 
     public static List<String> search(List<Map<String, String>> documents, String text) {
-        List<String> found = new ArrayList<>();
+        Map<String, Integer> rankMap = new HashMap<>();
+        int count = 0;
 
         for (var map : documents) {
-            if (contains(map.get("text"), text)) {
-                found.add(map.get("id"));
+            String doc = normalize(map.get("text"));
+            text = normalize(text);
+            String[] arr = doc.split(" ");
+
+            for (String s : arr) {
+                if (s.equals(text)) {
+                    count++;
+                }
+            }
+
+            if (count > 0) {
+                rankMap.put(map.get("id"), count);
+                count = 0;
             }
         }
 
-        return found;
+        return sortResult(rankMap);
     }
 
-    private static boolean contains(String doc, String text) {
-        doc = normalize(doc);
-        text = normalize(text);
-        String[] arr = doc.split(" ");
+    private static List<String> sortResult(Map<String, Integer> rankMap) {
+        List<String> resultList = new ArrayList<>();
+        List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(rankMap.entrySet());
+        sortedList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        for (String s : arr) {
-            if (s.equals(text)) {
-                return true;
-            }
+        for (var entry : sortedList) {
+            resultList.add(entry.getKey());
         }
-        return false;
+
+        return resultList;
     }
 
     private static String normalize(String str) {
