@@ -8,18 +8,21 @@ import java.util.Comparator;
 
 public class SearchEngine {
 
-    public static List<String> search(List<Map<String, String>> documents, String text) {
+    public static List<String> search(List<Map<String, String>> documents, String found) {
         Map<String, Integer> rankMap = new HashMap<>();
         int count = 0;
 
         for (var map : documents) {
             String doc = normalize(map.get("text"));
-            text = normalize(text);
-            String[] arr = doc.split(" ");
+            found = normalize(found);
+            String[] docArr = doc.split(" ");
+            String[] foundArr = found.split(" ");
 
-            for (String s : arr) {
-                if (s.equals(text)) {
-                    count++;
+            for (String foundSub : foundArr) {
+                for (String docSub : docArr) {
+                    if (docSub.equals(foundSub)) {
+                        count++;
+                    }
                 }
             }
 

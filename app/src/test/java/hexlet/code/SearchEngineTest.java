@@ -41,4 +41,12 @@ public class SearchEngineTest {
 
         assertEquals(expected, actual);
     }
+
+    @Test
+    public void testFuzzySearch() {
+        List<String> expected = SearchEngine.search(docs, "shoot unless had I");
+        List<String> actual = List.of("doc1", "doc2");
+
+        assertEquals(expected, actual);
+    }
 }
