@@ -19,6 +19,8 @@ public class SearchEngine {
     }
 
     private static boolean contains(String doc, String text) {
+        doc = normalize(doc);
+        text = normalize(text);
         String[] arr = doc.split(" ");
 
         for (String s : arr) {
@@ -27,5 +29,9 @@ public class SearchEngine {
             }
         }
         return false;
+    }
+
+    private static String normalize(String str) {
+        return str.toLowerCase().replaceAll("[^a-zA-Z ]", "");
     }
 }
