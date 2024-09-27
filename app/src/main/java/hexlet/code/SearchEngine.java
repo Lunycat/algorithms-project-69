@@ -4,52 +4,78 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class SearchEngine {
 
-    private static final Map<String, List<String>> index = new HashMap<>();
+    public static Map<String, List<String>> index;
 
     public static List<String> search(List<Map<String, String>> documents, String found) {
-        Map<String, Integer> rankMap = new HashMap<>();
-        int count = 0;
+        Map<String, Double> rankMap = new HashMap<>();
+        index = createIndex(documents);
 
         for (var map : documents) {
             String[] docArr = normalize(map.get("text")).split(" ");
             String[] foundArr = normalize(found).split(" ");
-            updateIndex(index, docArr, map.get("id"));
 
-            for (String foundSub : foundArr) {
-                for (String docSub : docArr) {
-                    if (docSub.equals(foundSub)) {
-                        count++;
-                    }
-                }
-            }
+            double tf = getTermFrequency(docArr, foundArr);
+            double idf = getInverseDocumentFrequency(map, index, foundArr);
+            double tfIdf = tf * idf;
 
-            if (count > 0) {
-                rankMap.put(map.get("id"), count);
-                count = 0;
+            if (tf > 0) {
+                rankMap.put(map.get("id"), tfIdf);
             }
         }
 
         return sortResult(rankMap);
     }
 
-    private static void updateIndex(Map<String, List<String>> index, String[] words, String nameDoc) {
-        for (String s : words) {
-            List<String> list = index.getOrDefault(s, null) != null ? index.get(s) : new ArrayList<>();
-            if (!list.contains(nameDoc)) {
-                list.add(nameDoc);
+    private static Map<String, List<String>> createIndex(List<Map<String, String>> documents) {
+        Map<String, List<String>> result = new HashMap<>();
+
+        for (var map : documents) {
+            String nameDoc = map.get("id");
+            String[] words = normalize(map.get("text")).split(" ");
+
+            for (String s : words) {
+                List<String> list = result.getOrDefault(s, null) != null ? result.get(s) : new ArrayList<>();
+                if (!list.contains(nameDoc)) {
+                    list.add(nameDoc);
+                }
+                result.put(s, list);
             }
-            index.put(s, list);
         }
+        return result;
     }
 
-    private static List<String> sortResult(Map<String, Integer> rankMap) {
+    private static double getInverseDocumentFrequency(Map<String, String> document,
+                                                      Map<String, List<String>> lIndex, String[] foundArr) {
+        double sum = 0;
+
+        for (String foundWord : foundArr) {
+            sum += (double) document.size() / lIndex.get(foundWord).size();
+        }
+        return sum;
+    }
+
+    private static double getTermFrequency(String[] docArr, String[] foundArr) {
+        int total = 0;
+        int countWord = 0;
+
+        for (String foundWord : foundArr) {
+            countWord++;
+            for (String docWord : docArr) {
+                if (foundWord.equals(docWord)) {
+                    total++;
+                }
+            }
+        }
+        return total == 0 ? 0 : (double) countWord / total;
+    }
+
+    private static List<String> sortResult(Map<String, Double> rankMap) {
         List<String> resultList = new ArrayList<>();
-        List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(rankMap.entrySet());
-        sortedList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        List<Map.Entry<String, Double>> sortedList = new ArrayList<>(rankMap.entrySet());
+        sortedList.sort(Map.Entry.comparingByValue());
 
         for (var entry : sortedList) {
             resultList.add(entry.getKey());

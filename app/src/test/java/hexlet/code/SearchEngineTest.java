@@ -45,7 +45,7 @@ public class SearchEngineTest {
 
     @Test
     public void testWithSigns() {
-        List<String> actual= SearchEngine.search(docs, "...,<>,pint!?@#$%??");
+        List<String> actual = SearchEngine.search(docs, "...,<>,pint!?@#$%??");
         List<String> expected = List.of("doc1");
 
         assertEquals(expected, actual);
