@@ -48,6 +48,6 @@ public class SearchEngine {
     }
 
     private static String normalize(String str) {
-        return str.toLowerCase().replaceAll("[^a-zA-Z ]", "");
+        return str.toLowerCase().replaceAll("[^a-z ]", "");
     }
 }
